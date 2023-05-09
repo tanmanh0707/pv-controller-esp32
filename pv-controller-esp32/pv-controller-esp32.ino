@@ -47,10 +47,11 @@ void loop()
       //Turn off PVs
       if (g_crtPVn > 0) {
         PV_Control(g_crtPVn, LOW);
-        g_crtPVn -= 1;  //Decrease PV        
+        g_crtPVn -= 1;  //Decrease PV
       }
-      else {
-        LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED OFF!!! CURRENT VALUE: %f\n", g_current));
+      else if (g_crtPVn == 0) {
+        PV_Control(g_crtPVn, LOW);
+        LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED OFF!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
       }
     }
     else if (g_current < CURRENT_HIGH_LOWER) {
@@ -60,7 +61,7 @@ void loop()
         g_crtPVn += 1;  //Increase PV
 
         if (g_crtPVn >= NUMBER_OF_PV) {
-          LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED ON!!! CURRENT VALUE: %f\n", g_current));
+          LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED ON!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
         }
       }
     }
@@ -69,9 +70,32 @@ void loop()
   /* Hanlde INPUT LOW */
   else
   {
-    
+    if (g_current <= CURRENT_LOW_LOWER)
+    {
+      if (g_crtPVn < NUMBER_OF_PV) {
+        PV_Control(g_crtPVn, HIGH);
+        g_crtPVn += 1;  //Increase PV
+
+        if (g_crtPVn >= NUMBER_OF_PV) {
+          LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED ON!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
+        }
+      }
+    }
+    else if (g_current >= CURRENT_LOW_UPPER)
+    {
+      if (g_crtPVn > 0) {
+        PV_Control(g_crtPVn, LOW);
+        g_crtPVn -= 1;  //Decrease PV
+      }
+      else if (g_crtPVn == 0) {
+        PV_Control(g_crtPVn, LOW);
+        LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED OFF!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
+      }
+    }
+    else {
+      // Do nothing
+    }
   }
 
   vTaskDelay(pdMS_TO_TICKS(10));
 }
-

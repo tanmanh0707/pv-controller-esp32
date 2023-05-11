@@ -35,7 +35,10 @@ void IOEXP_Setup()
   IOExpander_1.begin();
   IOExpander_2.begin();
   IOExpander_3.begin();
-  // pcfbegin();
+
+  IOEXP_Write(1, IO_EXP_BLINK_PIN, HIGH);
+  IOEXP_Write(2, IO_EXP_BLINK_PIN, HIGH);
+  IOEXP_Write(3, IO_EXP_BLINK_PIN, HIGH);
 
   LOCAL_PRINTLN(("IO Expander started!"));
 }
@@ -44,8 +47,7 @@ bool IOEXP_Write(uint8_t io_num, uint8_t pin_num, uint8_t mode)
 {
   LOCAL_PRINTF(("  IO(%d) - Pin(%02d) - State(%d)\n", io_num, pin_num, mode));
 
-#if 1
-  CommonMutex_Take();
+  if (CommonMutex_Take() == false) { return false; }
   switch (io_num) {
     case 1: IOExpander_1.digitalWrite(pin_num, mode); break;
     case 2: IOExpander_2.digitalWrite(pin_num, mode); break;
@@ -53,7 +55,6 @@ bool IOEXP_Write(uint8_t io_num, uint8_t pin_num, uint8_t mode)
     default: LOCAL_PRINTF(("[%s] Invalid argument. io_num: %d - pin_num: %d - mode: %d\n", __FUNCTION__, io_num, pin_num, mode)); break;
   }
   CommonMutex_Give();
-#endif
 
   return true;
 }

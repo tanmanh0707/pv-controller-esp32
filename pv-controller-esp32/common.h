@@ -12,6 +12,7 @@ void PV_Control(uint8_t pv_num, uint8_t mode);
 
 /* ADS current */
 void ADS_Setup();
+bool ADS_IsStarted();
 float ADS_GetAverageValue();
 
 /* Common mutex */

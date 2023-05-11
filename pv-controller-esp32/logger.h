@@ -42,6 +42,7 @@ class LOG
 public:
   static void Init() {
     LOG_SERIAL.begin( LOG_BAUDRATE );
+      delay(2000);
     SERIAL_PRINTLN((""));
     SERIAL_PRINTLN(("******************************"));
 #if defined (PROJECT_NAME)

@@ -62,6 +62,7 @@ void CurrentMeasureTask (void *arg)
     if (isStarted == false) {
       if (amp_pos == (NUM_AMP_VAL - 1)) {
         isStarted = true;
+        LOCAL_PRINTLN(("Current measurement is stable now!"));
       }
     }
 
@@ -77,14 +78,23 @@ void IOEXP_BlinkTask (void *arg)
   LOCAL_PRINTLN(("Blinking task started!"));
   while (1)
   {
-    for (i = 0; i < 3; i++)
+    if (isStarted == true)
     {
-      IOEXP_Write(i + 1, IO_EXP_BLINK_PIN, blink_state);
+      for (i = 0; i < 3; i++)
+      {
+        IOEXP_Write(i + 1, IO_EXP_BLINK_PIN, blink_state);
+      }
+
+      blink_state = (blink_state == HIGH)? LOW : HIGH;
     }
 
-    blink_state = (blink_state == HIGH)? LOW : HIGH;
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
+}
+
+bool ADS_IsStarted()
+{
+  return isStarted;
 }
 
 void ADS_Setup()
@@ -121,7 +131,7 @@ float ADS_GetAverageValue()
 
   /* Wait for stable readings at startup */
   if (isStarted == false) {
-    return -1.0;
+    return 0.0;
   }
 
   xSemaphoreTake(g_ampMutex, 1000);

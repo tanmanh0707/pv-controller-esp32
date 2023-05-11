@@ -20,7 +20,6 @@ uint8_t g_crtPVn = 0;
 void setup()
 {
   LOG::Init();
-  delay(3000);
 
   pinMode(INPUT_PIN, INPUT);
   CommonMutex_Setup();
@@ -33,7 +32,7 @@ void loop()
   g_current = ADS_GetAverageValue();
 
   /* Wait for stable readings at startup */
-  if (g_current < 0) {
+  if (ADS_IsStarted() == false) {
     return;    
   }
 

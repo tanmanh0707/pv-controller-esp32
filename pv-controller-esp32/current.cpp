@@ -23,6 +23,7 @@ static Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
 static float amp_list[NUM_AMP_VAL];
 static uint8_t amp_pos = 0;
 static bool isStarted = false;
+static unsigned long g_ads_time = 0;
 /********************************************************************
  Local functions
  ********************************************************************/
@@ -66,6 +67,7 @@ void CurrentMeasureTask (void *arg)
       }
     }
 
+    g_ads_time = millis();
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
@@ -74,18 +76,27 @@ void IOEXP_BlinkTask (void *arg)
 {
   uint8_t i = 0;
   uint8_t blink_state = HIGH;
+  uint8_t led_builtin_state = LOW;
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
 
   LOCAL_PRINTLN(("Blinking task started!"));
   while (1)
   {
-    if (isStarted == true)
+    for (i = 0; i < 3; i++)
     {
-      for (i = 0; i < 3; i++)
-      {
-        IOEXP_Write(i + 1, IO_EXP_BLINK_PIN, blink_state);
-      }
+      IOEXP_Write(i + 1, IO_EXP_BLINK_PIN, blink_state);
+    }
+    blink_state = (blink_state == HIGH)? LOW : HIGH;
 
-      blink_state = (blink_state == HIGH)? LOW : HIGH;
+    // ADS Led-builtin indicator
+    if (millis() - g_ads_time > 1000) {
+      digitalWrite(LED_BUILTIN, HIGH);
+    }
+    else {
+      digitalWrite(LED_BUILTIN, led_builtin_state);
+      led_builtin_state = (led_builtin_state == HIGH)? LOW : HIGH;
     }
 
     vTaskDelay(pdMS_TO_TICKS(1000));

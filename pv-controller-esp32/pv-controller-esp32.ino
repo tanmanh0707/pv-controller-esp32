@@ -29,12 +29,17 @@ void setup()
 
 void loop()
 {
-  g_current = ADS_GetAverageValue();
-
   /* Wait for stable readings at startup */
   if (ADS_IsStarted() == false) {
     return;    
   }
+
+  /* Debounce time for Amps stability */
+  if (millis() - PV_GetLastWriteTime() < AMPS_DEBOUNCE_TIME) {
+    return; 
+  }
+
+  g_current = ADS_GetAverageValue();
 
   /* Handle INPUT HIGH */
   if (digitalRead(INPUT_PIN) == HIGH)
@@ -45,21 +50,22 @@ void loop()
     else if (g_current > CURRENT_HIGH_UPPER) {
       //Turn off PVs
       if (g_crtPVn > 0) {
-        PV_Control(g_crtPVn, LOW);
+        PV_Control(g_crtPVn, PV_CONTROL_OFF);
         g_crtPVn -= 1;  //Decrease PV
       }
       else if (g_crtPVn == 0) {
-        PV_Control(g_crtPVn, LOW);
+        PV_Control(g_crtPVn, PV_CONTROL_OFF);
         LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED OFF!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
       }
     }
     else if (g_current < CURRENT_HIGH_LOWER) {
       //Turn on PVs
       if (g_crtPVn < NUMBER_OF_PV) {      
-        PV_Control(g_crtPVn, HIGH);
+        PV_Control(g_crtPVn, PV_CONTROL_ON);
         g_crtPVn += 1;  //Increase PV
 
         if (g_crtPVn >= NUMBER_OF_PV) {
+          g_crtPVn = (NUMBER_OF_PV - 1);
           LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED ON!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
         }
       }
@@ -72,10 +78,11 @@ void loop()
     if (g_current <= CURRENT_LOW_LOWER)
     {
       if (g_crtPVn < NUMBER_OF_PV) {
-        PV_Control(g_crtPVn, HIGH);
+        PV_Control(g_crtPVn, PV_CONTROL_ON);
         g_crtPVn += 1;  //Increase PV
 
         if (g_crtPVn >= NUMBER_OF_PV) {
+          g_crtPVn = (NUMBER_OF_PV - 1);
           LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED ON!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
         }
       }
@@ -83,11 +90,11 @@ void loop()
     else if (g_current >= CURRENT_LOW_UPPER)
     {
       if (g_crtPVn > 0) {
-        PV_Control(g_crtPVn, LOW);
+        PV_Control(g_crtPVn, PV_CONTROL_OFF);
         g_crtPVn -= 1;  //Decrease PV
       }
       else if (g_crtPVn == 0) {
-        PV_Control(g_crtPVn, LOW);
+        PV_Control(g_crtPVn, PV_CONTROL_OFF);
         LOCAL_PRINTF(("ALERT!!! ALL PVs HAVE BEEN TURNED OFF!!! CURRENT VALUE: %f - INPUT: %d\n", g_current, digitalRead(INPUT_PIN)));
       }
     }

@@ -30,7 +30,7 @@ bool CommonMutex_Take()
 {
   if (xSemaphoreTake(g_mutex, 1000) == pdFALSE) {
     /* Semaphore obtained failed */
-    LOCAL_PRINTF(("[%s:%d] Common mutex obtained failed\n", __FUNCTION__, __LINE__));
+//    LOCAL_PRINTF(("[%s:%d] Common mutex obtained failed\n", __FUNCTION__, __LINE__));
     return false;
   }
 

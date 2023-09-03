@@ -7,8 +7,9 @@ void CurrentMeasureTask (void *arg);
 
 /* IO Expander */
 void IOEXP_Setup();
-bool IOEXP_Write(uint8_t io_num, uint8_t pin_num, uint8_t mode);
+bool IOEXP_Write(uint8_t io_num, uint8_t pin_num, uint8_t mode, bool debug = true);
 void PV_Control(uint8_t pv_num, uint8_t mode);
+unsigned long PV_GetLastWriteTime();
 
 /* ADS current */
 void ADS_Setup();

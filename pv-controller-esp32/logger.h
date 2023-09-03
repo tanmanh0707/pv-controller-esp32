@@ -15,7 +15,7 @@
   } \
 
   #define UART_DEBUG_PRINTF(debug)\
-  { \ 
+  { \
     LOG_SERIAL.printf debug; \
   } \
 

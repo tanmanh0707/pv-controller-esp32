@@ -14,21 +14,28 @@
 #define LED_BUILTIN_ON          HIGH
 #define LED_BUILTIN_OFF         (!LED_BUILTIN_ON)
 
+#ifndef LED_BUILTIN
+#define LED_BUILTIN     19
+#endif
+
 /* IO-Expander modules */
-#define IO_EXPANDER_ADDR_1      0x5C
-#define IO_EXPANDER_ADDR_2      0x5D
-#define IO_EXPANDER_ADDR_3      0x5E
-#define RELAY_DEBOUCE_TIME      300     //milisec
+#define IO_EXPANDER_ADDR_1      0x20
+#define IO_EXPANDER_ADDR_2      0x22
+#define IO_EXPANDER_ADDR_3      0x23
+#define RELAY_DEBOUCE_TIME      500     //milisec
 #define NUMBER_OF_PV            42
 #define IO_EXP_BLINK_PIN        14
 
+#define PV_CONTROL_ON           LOW
+#define PV_CONTROL_OFF          HIGH
 /* Shunt type */
 #define SHUNT_TYPE_100MV
 
 /* INPUT */
-#define INPUT_PIN               10      //esp32 pin
+#define INPUT_PIN               18      //esp32 pin
 
 /* Current threshold */
+#define AMPS_DEBOUNCE_TIME      300     //ms
 #define CURRENT_HIGH_LOWER      70.0    //Amps
 #define CURRENT_HIGH_UPPER      80.0
 #define CURRENT_LOW_LOWER       (-15.0)

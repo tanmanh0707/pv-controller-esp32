@@ -182,6 +182,7 @@ public:
 		uint16_t digitalReadAll(void);
 	#endif
 	void digitalWrite(uint8_t pin, uint8_t value);
+  void digitalWriteAll(uint8_t value);
 
 private:
 	uint8_t _address;

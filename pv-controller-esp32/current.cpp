@@ -86,12 +86,13 @@ void IOEXP_BlinkTask (void *arg)
   {
     for (i = 0; i < 3; i++)
     {
-      IOEXP_Write(i + 1, IO_EXP_BLINK_PIN, blink_state);
+      IOEXP_Write(i + 1, IO_EXP_BLINK_PIN, blink_state, false /*debug*/);
     }
     blink_state = (blink_state == HIGH)? LOW : HIGH;
 
     // ADS Led-builtin indicator
     if (millis() - g_ads_time > 1000) {
+      /* g_ads_time is updated in measurement task. If it's not updated, no blink */
       digitalWrite(LED_BUILTIN, HIGH);
     }
     else {
@@ -115,7 +116,7 @@ void ADS_Setup()
                                             "CurrentMeasure",           /* name of task. */
                                             8192,                       /* Stack size of task */
                                             NULL,                       /* parameter of the task */
-                                            1,                          /* priority of the task */
+                                            tskIDLE_PRIORITY,           /* priority of the task */
                                             &CurrentMeasureTaskHandle,  /* Task handle to keep track of created task */
                                             0);                         /* Core */
   

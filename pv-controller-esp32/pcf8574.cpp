@@ -484,3 +484,21 @@ void PCF8575::digitalWrite(uint8_t pin, uint8_t value){
   DEBUG_PRINTLN("End I2c transmission.");
 };
 
+void PCF8575::digitalWriteAll(uint8_t value)
+{
+  DEBUG_PRINTLN("Begin trasmission");
+  _wire->beginTransmission(_address);     //Begin the transmission to PCF8575
+  if (value==HIGH){
+    writeByteBuffered = 0xFFFF;
+  }else{
+    writeByteBuffered = 0x0000;
+  }
+
+  writeByteBuffered = writeByteBuffered & writeMode;
+  _wire->write((uint8_t) writeByteBuffered);
+  _wire->write((uint8_t) (writeByteBuffered >> 8));
+  DEBUG_PRINTLN("Start end trasmission if stop here check pullup resistor.");
+
+  _wire->endTransmission();
+  DEBUG_PRINTLN("End I2c transmission.");
+}

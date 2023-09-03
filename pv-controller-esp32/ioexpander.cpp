@@ -14,6 +14,7 @@
  Local Variables
  ********************************************************************/
 static unsigned long last_write_time[NUMBER_OF_PV] = {0};
+static unsigned long g_pv_write_time = 0;
 static unsigned long time_diff = 0;
 
 PCF8575 IOExpander_1(IO_EXPANDER_ADDR_1);
@@ -36,16 +37,20 @@ void IOEXP_Setup()
   IOExpander_2.begin();
   IOExpander_3.begin();
 
-  IOEXP_Write(1, IO_EXP_BLINK_PIN, HIGH);
-  IOEXP_Write(2, IO_EXP_BLINK_PIN, HIGH);
-  IOEXP_Write(3, IO_EXP_BLINK_PIN, HIGH);
+  IOExpander_1.digitalWriteAll(PV_CONTROL_OFF);
+  IOExpander_2.digitalWriteAll(PV_CONTROL_OFF);
+  IOExpander_3.digitalWriteAll(PV_CONTROL_OFF);
+
+  IOEXP_Write(1, IO_EXP_BLINK_PIN, PV_CONTROL_ON);
+  IOEXP_Write(2, IO_EXP_BLINK_PIN, PV_CONTROL_ON);
+  IOEXP_Write(3, IO_EXP_BLINK_PIN, PV_CONTROL_ON);
 
   LOCAL_PRINTLN(("IO Expander started!"));
 }
 
-bool IOEXP_Write(uint8_t io_num, uint8_t pin_num, uint8_t mode)
+bool IOEXP_Write(uint8_t io_num, uint8_t pin_num, uint8_t mode, bool debug)
 {
-  LOCAL_PRINTF(("  IO(%d) - Pin(%02d) - State(%d)\n", io_num, pin_num, mode));
+  if (debug) { LOCAL_PRINTF(("  IO(%d) - Pin(%02d) - State(%d)\n", io_num, pin_num, mode)); }
 
   if (CommonMutex_Take() == false) { return false; }
   switch (io_num) {
@@ -65,8 +70,19 @@ void PV_Control(uint8_t pv_num, uint8_t mode)
   if (time_diff < RELAY_DEBOUCE_TIME) {
     vTaskDelay(pdMS_TO_TICKS(time_diff));
   }
-  LOCAL_PRINTF(("PV(%02d) - %s\n", pv_num, (mode == HIGH)? "ON":"OFF"));
+  LOCAL_PRINTF(("PV(%02d) - %s\n", pv_num, (mode == PV_CONTROL_ON)? "ON":"OFF"));
 
-  IOEXP_Write((pv_num / 14) + 1, (pv_num % 14), mode);
-  last_write_time[pv_num] = millis();
+  if (pv_num < NUMBER_OF_PV)
+  {
+    IOEXP_Write((pv_num / 14) + 1, (pv_num % 14), mode);
+    last_write_time[pv_num] = g_pv_write_time = millis();
+  }
+  else {
+    LOCAL_PRINTF(("ERROR: Invalid PV(%02d)\n", pv_num));
+  }
+}
+
+unsigned long PV_GetLastWriteTime()
+{
+  return g_pv_write_time;
 }
